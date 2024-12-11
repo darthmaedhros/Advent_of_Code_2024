@@ -11,26 +11,32 @@ read_stream_to_strings(Stream, [Line | MoreLines]) :- read_line_to_string(Stream
 
 
 % Part 1
-
-
-
-
 process_input(Path, SplitStrings) :- read_file_to_strings(Path, Strings), split_list_of_strings(Strings,SplitStrings).
 
 
+%split_list_of_strings/2 Takes a list of strings and splits them each into digits.
 split_list_of_strings([],[]).
 
 split_list_of_strings([String|T], [SplitNumbers|MoreSplitStrings]) :- split_string(String, " ", " ", SplitString), maplist(atom_number,SplitString,SplitNumbers), split_list_of_strings(T, MoreSplitStrings).
 
 
+%unsafe/1
 % Unsafe if all terms are not ascending or descending.
-unsafe(List) :- sort(1, @=<, List, List2), List2 \= List, sort(1, @>=, List, List3), List3 \= List.
+unsafe(List) :- sort(0, @=<, List, List2), List2 \= List, sort(0, @>=, List, List3), List3 \= List, !.
+
+% Unsafe if adjacent terms differ by 0 or more than 3.
+unsafe([]) :- false, !.
+unsafe([H1|[H2|_]]) :- Diff is abs(H1-H2), Diff = 0, !.
+unsafe([H1|[H2|_]]) :- Diff is abs(H1-H2), Diff > 3, !.
+unsafe([_|T]) :- unsafe(T).
 
 
-%calculate_answer(Path,) :- process_input(Path,L,R).
 
+calculate_answer(Path, Count) :- process_input(Path,List), aggregate_all(count,in_list_and_safe(_,List), Count).
 
+in_list_and_safe(X, List) :- member(X,List), \+ unsafe(X).
 
 
 
 %Part 2
+
