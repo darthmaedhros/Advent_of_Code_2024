@@ -32,11 +32,23 @@ unsafe([_|T]) :- unsafe(T).
 
 
 
-calculate_answer(Path, Count) :- process_input(Path,List), aggregate_all(count,in_list_and_safe(_,List), Count).
+calculate_part_1(Path, Count) :- process_input(Path,List), aggregate_all(count,in_list_and_safe(_,List), Count).
 
 in_list_and_safe(X, List) :- member(X,List), \+ unsafe(X).
 
 
 
 %Part 2
+%check all sublists... Too extensive?
 
+calculate_part_2(Path, Count) :- process_input(Path,List), aggregate_all(count,in_list_and_dampened_safe(_,List), Count).
+
+
+dampened_unsafe(List) :- unsafe(List), all_sublists(List, AllSublists), maplist(unsafe, AllSublists).
+
+
+in_list_and_dampened_safe(X, List) :- member(X,List), \+ dampened_unsafe(X).
+
+remove_one_elem(List, Removed, Sublist) :- append(Before, [Removed|After], List), append(Before, After, Sublist).
+
+all_sublists(List, AllSublists) :- findall(Sublist, remove_one_elem(List, _, Sublist), AllSublists).
